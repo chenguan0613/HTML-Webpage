@@ -4,7 +4,7 @@
 
 ## 目录结构
 
-```
+```text
 HTML/                 # 手写的网页
   register_page.html    # 组合百科主页（简介、主线剧情、人物关系、音乐作品）
   kanade_profile.html   # 宵崎奏 角色介绍页
@@ -20,7 +20,8 @@ docs/
 > 页面通过相对路径 `../docs/images/` 和 `../docs/music/` 引用图片与音乐，
 > 请保持上述目录结构不变，否则图片和音乐会加载不出来。
 
-## 说明
+## 在线分享
 
-本仓库从 [My-Notebook](https://github.com/chenguan0613/My-Notebook) 中剥离出来，
-专门存放 HTML 相关的内容。
+本仓库已开启 GitHub Pages，直接访问即可在线查看：
+
+<https://chenguan0613.github.io/HTML-Webpage/>
