@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Page</title>
+    <style>
+        * {
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+        }
+        .dropdown{
+            list-style:none;
+            padding: 6px 0;
+            margin:0;
+            position: absolute;
+            top: 46px;
+            right: 0;
+            min-width: 140px;
+            background: rgba(106, 144, 150, 0.85);
+            border-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+            display: none;
+        }
+        .dropdown li{
+            text-align: center;
+        }
+        .dropdown.show{
+            display: block;
+        }
+
+        .dropdown a{
+            display: block;   /* 让整行都能点 */
+            text-decoration: none;
+            color:black;
+            font-size: 16px;
+            padding: 8px 0;
+        }
+        .dropdown button{
+            border:none;
+            background: none;
+            width: 100%;
+            cursor:pointer;
+            color:black;
+            font-size: 16px;
+            padding: 8px 0;
+        }
+        .dropdown a:hover,
+        .dropdown button:hover{
+            background: rgba(255,255,255,0.35);
+        }
+        .topbar{
+            position: fixed;
+            top:0;
+            left:0;
+            right:0;
+            height: 60px;
+            z-index: 100;   /* 让顶栏始终浮在页面内容最上层 */
+            background: rgba(161, 241, 254, 0.55);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding:0 24px;
+        }
+
+        .brand{
+            font-weight: bold;
+            color:#2f2f32;
+            font-size: 20px;
+        }
+
+        .user-menu{
+            position: relative;
+        }
+        
+        .username{
+            font-size:18px;
+        }
+
+        .avatar-btn{
+            display: flex;
+            align-items: center;
+            gap:8px;
+            border:none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            color: black;
+        }
+
+        .avatar{
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .arrow{
+            color:#888;
+            font-size: 12px;
+        }
+
+        .card{
+            background:#fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding:20px 24px;
+            margin:16px 0;
+            text-align: left;
+        }
+
+        .card h2{
+            font-size: 18px;
+            color:#4a56a8;
+            margin-bottom:10px;
+        }
+
+        .card ol,
+        .card ul{
+            padding-left: 24px;
+            color:#444;
+        }
+
+        .compare{
+            width:100%;
+            border-collapse: collapse;
+        }
+        .compare th,
+        .compare td{
+            border: 1px solid #1c1d1e;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        .compare th{
+            background:#d6d6d7;
+            color:#010101;
+        }
+
+        .form-table td{
+            padding:6px 8px;
+            vertical-align: top;
+        }
+        .form-table{
+            width: 100%;
+        }
+        .form-table .field-label{
+            width:90px;
+            text-align: right;
+            color:#000000;
+            white-space:nowrap;
+        }
+        .form-table input[type="text"],
+        .form-table input[type="email"],
+        .form-table input[type="password"],
+        .form-table select,
+        .form-table textarea{
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #010101;
+            border-radius: 6px;
+            font-size:14px;
+            font-family: inherit;
+        }
+        .form-table input:focus,
+        .form-table select:focus,
+        .form-table textarea:focus{
+            outline:none;
+            border-color:#5b6ee1;
+        }
+        .form-table td label{
+            margin-right: 0px;
+
+        }
+        .form-table button{
+            padding: 9px 40px;
+            border:none;
+            border-radius: 6px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 0 8px;
+        }
+        .form-table button[type="submit"]{
+            background:#616161;
+            color:#ffffff;
+        }
+        .form-table button[type="reset"]{
+            background:#616161;
+            color:#ffffff;
+        }
+        .form-table .btn-cell{
+            text-align: center;
+        }
+
+        .footer{
+            text-align: center;
+            color:#000000;
+            font-size:15px;
+            margin-top:32px;
+        }
+
+        .modal{
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;   /* 弹窗盖在顶栏之上 */
+        }
+        .modal.show{
+            display: flex;
+        }
+        .modal-content{
+            background:rgba(255, 255, 255, 0.65);
+            border-radius: 12px;
+            width: 560px;
+            max-width: calc(100vw - 32px);
+            max-height: 80vh;
+            overflow: auto;
+            padding: 0 24px 20px;
+        }
+        .modal-header{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #eceef4;
+            margin: 0 -24px 8px;
+            position: sticky;
+            top: 0;
+            background: rgba(149, 148, 148, 0.9);
+            z-index:1;
+        }
+        .modal-title{
+            font-size: 30px;
+            font-weight: bold;
+            color: #000000;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .close-btn{
+            border: none;
+            background: transparent;
+            font-size: 35px;
+            color: #000000;
+            cursor: pointer;
+            line-height: 1;
+            margin-left: auto;
+        }
+        .close-btn:hover{
+            color:#333;
+        }
+        .modal-content .card{
+            background: rgba(255,255,255,0.55);
+            box-shadow: none;
+            border:1px solid rgba(236, 238, 244, 0.6);
+            backdrop-filter: blur(6px);
+        }
+
+        .page{
+            max-width: 1100px;
+            margin:0 auto;
+            padding: 24px 16px 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 12px;   /* 主页面圆角 */
+        }
+
+        .page h1{
+            color:black;
+        }
+
+
+        .overview-card{
+            float: right;
+            width: 270px;
+            border: 2px solid rgba(0,0,0,0.75);
+            border-radius: 10px;
+            background: rgba(136, 182, 200, 0.80);
+            margin: 24px 0 12px 20px;
+            border-collapse: separate;   /* 不能用 collapse，否则圆角不显示 */
+            border-spacing: 0;           /* 去掉单元格之间的缝隙 */
+            overflow: hidden;            /* 让圆角裁剪掉超出四个角的内容 */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .overview-card:hover{
+            transform: translateY(-6px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+        }
+        .overview-card img{
+            width:100%;
+            height: auto;
+            display: block;
+            border-radius: 0px;
+        }
+        .overview-card th{
+            color:#BB6688;
+            text-align: left;
+            padding:4px 8px;
+            font-weight: bold;
+        }
+        .card_header{
+            text-align: center;
+            background: rgba(255, 107, 149, 0.65);
+            color:#000000;
+            font-weight: bold;
+            padding:6px 0;
+        }
+
+        .main{
+            text-align: left;
+            padding: 0 24px;
+        }
+        .main h2{
+            color:#884499;
+            margin-bottom:10px;
+            font-size: 24px;
+        }
+        .main > img{
+            max-width: 100%;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            margin: 18px 0px;
+        }
+        .main > img:hover{
+            transform: translateY(-6px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+        }
+        .main p{
+            line-height: 1.8;
+            color:#000000;
+            margin-bottom:12px;
+            font-size: 18px;
+        }
+
+        .main details{
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            background: rgba(244, 246, 244, 0.9);
+            margin: 10px 0;
+            padding: 10px 18px;
+        }
+        .main details p{
+            background: rgba(255, 255, 255, 0.85);
+            padding: 12px 14px;
+            border-radius: 6px;
+        }
+        .main summary{
+            color: #884499;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .albums{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 12px;
+        }
+        .album-card{
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .album-card:hover{
+            transform: translateY(-6px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+        }
+        .album-card img{
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+        }
+        .album-card p{
+            margin: 0;
+            padding: 8px 6px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #333333;
+            text-align: center;
+        }
+        .album-cover{
+            position: relative;
+        }
+        .album-card audio{
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            opacity: 0.85;
+            margin: 0;
+        }
+        .album-card:hover audio{
+            display: block;   /* 鼠标悬停在卡片上才显示，移开就消失 */
+        }
+
+        body{
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background-image: url("../docs/images/25login.png");
+            background-size: 140%;
+            background-position: 60% 30%;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding-top: 70px;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="brand">25时，Nightcord见</div>
+        <div class="user-menu">
+            <button class="avatar-btn" onclick="toggleMenu()">
+                <img class="avatar" src="../docs/images/kanade_avatar.png" alt="奏">
+                <span class="username">Kanade</span>
+                <span class="arrow">▾</span>
+            </button>
+            <ul class="dropdown" id="dropdown">
+                <li><a href="kanade_profile.html">个人主页</a></li>
+                <li><button onclick="">收藏</button></li>
+                <li><button onclick="">设置</button></li>
+                <li><button onclick="openRegister()">注册</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="page">
+        <h1>25时，Nightcord见。</h1>
+        <table class="overview-card">
+            <tr><td class="card_header" colspan="2">资料总览</td></tr>
+            <tr>
+                <td colspan="2"><img src="../docs/images/all_members.png" alt="全体成员"></td>
+            </tr>
+            <tr><th>组合本名</th><td>25時、ナイトコードで。<br>25点，Nightcord见。</td></tr>
+            <tr>
+                <th>成员</th>
+                <td>
+                    宵崎奏 (cv 楠木灯)<br>
+                    朝比奈真冬 (cv 田边留依)<br>
+                    东云绘名 (cv 铃木实里)<br>
+                    晓山瑞希 (cv 佐藤日向)
+                </td>
+            </tr>
+        </table>
+        <div class="main">
+            <h2>简介</h2><hr>
+            <p><br><strong>每当夜晚25点时，所有人便开始忙碌起来。一个神秘的音乐社团。</strong></p>
+            <p>
+                宵崎奏为了创作出「能令人幸福的歌曲」而组成的音乐社团。简称「25（ニーゴ）」。<br>
+                每日25时（凌晨1点）成员四人准时集合，通过语音聊天软件“Nightcord[2]”交流作曲。<br>
+                虽然四人不了解彼此的长相和姓名，但依然配合得很默契。<br>
+                然而某天，社团中的一个成员和大家失去了联系。<br>
+                <br>
+                通过语音聊天软件“Nightcord”创作歌曲的音乐社团。<br>
+                为解决成员朝比奈真冬面临的问题，成员们开始在线下见面。<br>
+                大家一边面对着自己的问题，一边进行着音乐创作。<br>
+            </p>
+            <hr>
+            <details>
+                <summary>主线剧情</summary>
+                <p>
+                儿时的奏受到作曲家父亲的影响，一直希望能像父亲一样写出让人幸福的曲子，然而之后的一次变故却让奏亲手毁掉了父亲的作曲生涯。对此十分自责的奏陷入执念，开始不停地试图创作让人幸福的曲子。几年后，奏已经和另外三名网友一起组成了音乐社团25点，Nightcord见。，在某天的工作中，奏被意外地拉入“世界”，并见到了Miku。Miku告诉奏自己一直在等她，希望奏能拯救某个人。回到现实世界的奏还以为自己在做梦，便继续马不停蹄地创作，但她并不知道故事即将拉开序幕。
+                </p>
+                <p>
+                在25时持续工作的奏过着昼夜不分、作息不规律的生活，社团内四人共同工作的时间也是深夜的凌晨一点。社团成员分别为负责作曲，ID为“K”的奏、负责作词与编曲混音的“雪”、负责插画的“Enanan”以及负责MV的“Amia”，大家并不知道彼此的真实姓名和长相。“雪”真名为真冬，现实生活中是品学兼优的优等生；“Enanan”真名为绘名，在画画状态不好时会沉迷自拍以获取认同感，然而自己上传插画的账号却始终没有涨粉；“Amia”真名为瑞希，平日大部分时间都不去上学；而奏则平日大部分时间都在创作，偶尔去医院探望父亲，并靠着能让自己感到温暖的评论坚持着。然而某天，奏的电脑上突然出现了白发的Miku，并说着“快来”。颇像恐怖片
+                </p>
+                <p>
+                之后的某天，大家在闲聊时提到最近出现的那位备受关注的创作者——OWN。其曲风和25时有一定相似之处，但和奏的曲子会透着一丝温暖不同，OWN的曲子从头到尾透着冰冷的感觉。然而奏在听过OWN的歌曲后，认为这和雪曾经写过的曲子很像，因而怀疑这首歌是雪写的，但雪却矢口否认。二人随即聊到25时成立的过程，雪无意间透露自己最初加入社团是因为自己曾经被K的曲子所拯救，这让奏倍感欣慰。然而下线后，真冬却表示自己并不理解自己刚才说的话，并开始看OWN的账号，也就是自己写的歌曲的评论，并感到非常无聊与迷茫。
+                </p>
+                <p>
+                在学校中，真冬依旧扮演着老师与同学们心中的优等生形象，却很少跟别人说自己的事。回到家后，真冬上线与Amia聊天时，母亲进到房间里，并顺便对真冬的交友关系提出了建议，被Amia碰巧听到。Amia对雪母亲将价值观强加给雪一事略感不舒服，但雪似乎觉得没有关系。晚饭时，父母谈及真冬的志愿，二人都对真冬感到很自豪，并表示真冬做自己想做的事就好。然而回到房间的真冬却对这一切都倍感厌倦，因为她从来都不知道自己想做的事是什么。面对出现在手机里的Miku，真冬似乎也早就知道其存在，并表示自己想一直待在“世界”里。
+                </p>
+                <p>
+                之后的几天，OWN一直在投稿新歌，然而雪却整整一周没有出现在25时。担心雪的三人试图联系雪，却意外在公共文件里发现了“Untitled”并进入了“世界”。在那里，三人终于见面，并见到了Miku。Miku告诉三人，这里是由雪的心愿形成的世界。这时，雪终于出现在众人面前，并露出了真面目，同时表示自己要一个人待在这，并让三人离开。奏再次询问雪是否就是OWN，雪也供认不讳，这让绘名和瑞希非常惊讶。雪表示，自己最开始听到K的曲子时有些被拯救的感觉，但现在这种感觉已经不够了，所以自己已经没有留在25时的理由了，于是她打算自己一个人去寻找自我。雪让Miku将三人赶出“世界”，并在三人被赶走前表示“她们其实和自己一样，比任何人都想消失”。然而Miku在将奏赶出时，依然表示希望奏能够拯救真冬。
+                </p>
+                <p>
+                回到现实的三人感到不可思议。绘名对雪非常不爽，并且表示自己不打算再管她的事，但奏却对自己没能拯救雪而非常在意。大家下线后，绘名回想起雪的态度，认为她仗着自己有才能就对平庸的自己没有兴趣了，又想起雪曾经表示喜欢自己的画，但是那如今看来不过是假心假意。一向自尊心很强的绘名感觉自己被瞧不起而愈发不服气，开始拼命作画来证明自己，但一直无法令自己满意。这时一向认为绘名没有绘画天赋的父亲前来问话，结果更加刺激了绘名。作画始终不顺的绘名又开始自我怀疑，并再次用上传自拍来逃避现实。内心受挫的绘名不得不承认雪说得对，自己一直都想要消失。
+                </p>
+                <p>
+                另一边，瑞希出于出席数的压力久违地来上学，却不出意外地被周围人各种指指点点。有两位同班同学和瑞希走得比较近，也为瑞希打抱不平，但瑞希表示自己已经习惯了。分开后，瑞希却又在商场意外地见到了二人，正想上前搭话时，却听到二人对于瑞希的行为并不理解的对话。后续活动剧情中提到二人其实并无恶意，是真心关心瑞希，只是的确不理解瑞希的心境之痛苦。本把二人当作伙伴的瑞希顿时感到失望，并且想着自己只是想做自己却始终不被人理解。想到雪说的话，瑞希对于“自己也想要消失”这点无法反驳，但也对于雪和自己处境相似而有所共鸣。
+                </p>
+                <p>
+                与此同时，奏认为自己之前自以为是地觉得自己拯救了雪，进而拯救了自己，因而愈发陷入了偏执，像变了个人似的废寝忘食地作曲。但一想到父亲的事，奏又失去了继续作曲的动力。小时候的奏在母亲去世后，为了能像父亲一样写出让母亲感到幸福的曲子，已经开始自己作曲，并展现出极高的天赋，也得到了父亲的肯定。然而奏不知道的是，父亲的歌曲已经逐渐跟不上时代，在一次重要的广告曲审查中，父亲始终缺乏灵感，而奏却随手一写就帮父亲写出了很棒的编曲段落。父亲惊讶于奏的天赋，但也认识到自己的能力不足。之后父亲成功通过审查，但被认可的只有奏所写的那一段。接下来的一段时间里，父亲的委托有所增加，但大家期待的只是奏那样的曲子。经过一段时间的努力，父亲终于写出了尚能让自己满意的曲子。就在这时，奏为了让父亲打起精神而为父亲写了一首曲子，但这也成为了压垮父亲的最后一根稻草。父亲告诉奏今后也要继续创作音乐，一定会成为很多人不可或缺的存在。第二天，本就承担养家压力的父亲在巨大的精神压力下，终于负担过重倒下而住进医院，记忆也出现混乱。回到家后的奏从父亲的日记中知晓了真相，原来自己才是把父亲逼上绝路的罪魁祸首。无法接受真相的奏一度陷入自暴自弃的状态，但在听到母亲留下的八音盒后想起了父亲的话，决定继续创作让人幸福的曲子。然而如今奏发觉自己的音乐依然谁也无法拯救。迷茫的奏来到了“世界”，却听到Miku在唱自己以前写的歌。Miku告诉奏，这首歌从一开始就在这个“世界”，说明奏的曲子触碰到了雪的心愿，而奏和雪有着相似的心情，能拯救她的只有奏。奏于是决定继续创作并拯救雪。
+                </p>
+                <p>
+                另一边，真冬持续以OWN的名义作着曲。原来真冬从小就努力在做父母眼中的好孩子，中学时，学校曾布置关于将来的梦想的作文，真冬想要当护士，但母亲却认为医生是更好的选择，并擅自为真冬做了决定。真冬为了让父母高兴而默默接受了。在同学和老师们面前，真冬也是如此，一直在尽力地满足大家的期待而压抑自我。久而久之，真冬渐渐味觉失灵，在想做些自己喜欢的事来放松一下时，却发觉自己不知道自己喜欢什么。渐渐迷失自我的真冬一直试图寻找自我，但什么也没有找到。
+                </p>
+                <p>
+                之后一天，瑞希和绘名在Nightcord上聊天时，瑞希通过自己之前听到的雪母亲的话，大致推测出了雪的情况，并表示希望跟雪再聊聊。就在这时，OWN突然连续投稿，二人从曲中感觉到雪的状况不妙。这时奏终于上线，并表示自己想拯救雪。瑞希提议自己也要一起去，但绘名表示自己并不想为了雪而行动。完成新歌后，二人立刻动身前往“世界”。与此同时，真冬在学校已经有些快要维持不住形象了。回家后，母亲从真冬房间里找到了合成器并打算扔掉。真冬对“找到自我”这件事彻底放弃了，并打算自己一个人在“世界”就此“消失”。这时奏带着瑞希赶到，希望雪能听一下自己的歌曲。然而真冬突然情绪很激动地将奏的手机打掉了，并且让二人赶紧离开。奏讲述了自己的经历，希望让雪明白自己能理解她的心情。然而，雪却表示奏是被诅咒了，而自己并不想理会。这时绘名突然赶到，并且十分不爽地表示，雪拥有自己希望拥有的才能却想要消失，这件事让自己无法接受。可雪依然认为这些对她来说无所谓。瑞希则认为自己能够理解一些雪的心情，感觉自己某些地方和雪很像，如果雪不在了自己会寂寞。在三人的轮番进攻下，雪再也受不了，表示自己已经累了，只想“消失”，不想再继续寻找自我了。然而奏却说自己会一直为雪创作下去，直到雪找到自我为止。反正自己已经背负了一个诅咒，再加一个也没什么。在奏的坚持下，雪终于决定再继续试着寻找自我。事情告一段落，四人也和Miku一起演唱了“Untitled”化为的歌曲——「写作悔恨的未来」。真冬也从中发觉了自己真正的心愿是“想被找到”。
+                </p>
+                <p>
+                回到现实世界后，瑞希提议大家组织线下聚会。之后一天，奏在探病后来到家庭餐厅和大家碰面。雪正式向大家自我介绍，并毫无感情地向大家道歉。回家后，真冬听过了奏的新歌，虽然真冬表示这依然不足以拯救自己，但她还是感谢奏找到了自己。25点，Nightcord见。的故事得以延续。
+                </p>
+            </details>
+            <h2>人物关系</h2><hr>
+            <img src="../docs/images/relationship.png" alt="关系">
+            <h2>音乐作品</h2><hr>
+            <div class="albums">
+                <div class="album-card"><img src="../docs/images/查尔斯.webp" alt="查尔斯"><p>查尔斯</p></div>
+                <div class="album-card"><img src="../docs/images/被生命所厌恶.webp" alt="被生命所厌恶"><p>被生命所厌恶</p></div>
+                <div class="album-card"><img src="../docs/images/写作悔恨的未来.webp" alt="写作悔恨的未来"><p>写作悔恨的未来</p></div>
+                <div class="album-card"><img src="../docs/images/移动恋话.webp" alt="移动恋话"><p>移动恋话</p></div>
+                <div class="album-card"><img src="../docs/images/Jackpot_Sad_Girl.webp" alt="Jackpot_Sad_Girl"><p>Jackpot Sad Girl</p></div>
+                <div class="album-card"><img src="../docs/images/你好.webp" alt="你好"><p>你好</p></div>
+                <div class="album-card"><img src="../docs/images/自伤无色.webp" alt="自伤无色"><p>自伤无色</p></div>
+                <div class="album-card"><img src="../docs/images/孑然妒火.webp" alt="孑然妒火"><p>孑然妒火</p></div>
+                <div class="album-card"><img src="../docs/images/向着无尽之灰.webp" alt="向着无尽之灰"><p>向着无尽之灰</p></div>
+                <div class="album-card"><img src="../docs/images/乙女解剖.webp" alt="乙女解剖"><p>乙女解剖</p></div>
+                <div class="album-card"><img src="../docs/images/痛并渴痛.webp" alt="痛并渴痛"><p>痛并渴痛</p></div>
+                <div class="album-card"><img src="../docs/images/餐具.webp" alt="餐具"><p>餐具</p></div>
+                <div class="album-card"><img src="../docs/images/ID_Smile.webp" alt="ID_Smile"><p>ID Smile</p></div>
+                <div class="album-card"><img src="../docs/images/真理之口.webp" alt="真理之口"><p>真理之口</p></div>
+                <div class="album-card"><img src="../docs/images/苦巧克力装饰.webp" alt="苦巧克力装饰"><p>苦巧克力装饰</p></div>
+                <div class="album-card"><img src="../docs/images/向夜晚奔去.webp" alt="向夜晚奔去"><p>向夜晚奔去</p></div>
+                <div class="album-card"><img src="../docs/images/群青赞歌.webp" alt="群青赞歌"><p>群青赞歌</p></div>
+                <div class="album-card"><img src="../docs/images/再生.webp" alt="再生"><p>再生</p></div>
+                <div class="album-card"><img src="../docs/images/猛毒.webp" alt="猛毒"><p>猛毒</p></div>
+                <div class="album-card"><img src="../docs/images/奏明天空.webp" alt="奏明天空"><p>奏明天空</p></div>
+                <div class="album-card"><img src="../docs/images/Villain.webp" alt="Villain"><p>Villain</p></div>
+                <div class="album-card"><img src="../docs/images/爱我吧爱我吧爱我吧.webp" alt="爱我吧爱我吧爱我吧"><p>爱我吧爱我吧爱我吧</p></div>
+                <div class="album-card"><img src="../docs/images/Lower.webp" alt="Lower"><p>Lower</p></div>
+                <div class="album-card"><img src="../docs/images/Nomad.webp" alt="Nomad"><p>Nomad</p></div>
+                <div class="album-card"><img src="../docs/images/妄想感伤代偿联盟.webp" alt="妄想感伤代偿联盟"><p>妄想感伤代偿联盟</p></div>
+                <div class="album-card"><img src="../docs/images/特等俘虏.webp" alt="特等俘虏"><p>特等俘虏</p></div>
+                <div class="album-card"><img src="../docs/images/吵死了.webp" alt="吵死了"><p>吵死了</p></div>
+                <div class="album-card"><img src="../docs/images/Meru.webp" alt="Meru"><p>Meru</p></div>
+                <div class="album-card"><img src="../docs/images/Journey.webp" alt="Journey"><p>Journey</p></div>
+                <div class="album-card"><img src="../docs/images/予我你的长夜.webp" alt="予我你的长夜"><p>予我你的长夜</p></div>
+                <div class="album-card"><img src="../docs/images/bug.webp" alt="bug"><p>bug</p></div>
+                <div class="album-card"><img src="../docs/images/无呼吸义务.webp" alt="无呼吸义务"><p>无呼吸义务</p></div>
+                <div class="album-card"><img src="../docs/images/于泥中绽放.webp" alt="于泥中绽放"><p>于泥中绽放</p></div>
+                <div class="album-card"><img src="../docs/images/地狱.webp" alt="地狱"><p>地狱</p></div>
+                <div class="album-card"><img src="../docs/images/phony.webp" alt="phony"><p>phony</p></div>
+                <div class="album-card"><img src="../docs/images/反语.webp" alt="反语"><p>反语</p></div>
+                <div class="album-card"><img src="../docs/images/即使这就是你的幸福.webp" alt="即使这就是你的幸福"><p>即使这就是你的幸福</p></div>
+                <div class="album-card"><img src="../docs/images/萨姆莎.webp" alt="萨姆莎"><p>萨姆莎</p></div>
+                <div class="album-card"><img src="../docs/images/这就是I.webp" alt="这就是I"><p>这就是I</p></div>
+                <div class="album-card"><img src="../docs/images/这是个多么美好的六月啊.webp" alt="这是个多么美好的六月啊"><p>这是个多么美好的六月啊</p></div>
+                <div class="album-card"><img src="../docs/images/演剧.webp" alt="演剧"><p>演剧</p></div>
+                <div class="album-card"><img src="../docs/images/只为生命.webp" alt="只为生命"><p>只为生命</p></div>
+                <div class="album-card"><img src="../docs/images/Kitty.webp" alt="Kitty"><p>Kitty</p></div>
+                <div class="album-card"><img src="../docs/images/心理作用.webp" alt="心理作用"><p>心理作用</p></div>
+                <div class="album-card"><img src="../docs/images/NEO.webp" alt="NEO"><p>NEO</p></div>
+                <div class="album-card"><img src="../docs/images/Slow_Downer.webp" alt="Slow_Downer"><p>Slow Downer</p></div>
+                <div class="album-card"><img src="../docs/images/微明暮光.webp" alt="微明暮光"><p>微明暮光</p></div>
+                <div class="album-card"><img src="../docs/images/像神一样呐.webp" alt="像神一样呐"><p>像神一样呐</p></div>
+                <div class="album-card"><img src="../docs/images/可爱女友.webp" alt="可爱女友"><p>可爱女友</p></div>
+                <div class="album-card"><img src="../docs/images/envy_baby.webp" alt="envy_baby"><p>envy baby</p></div>
+                <div class="album-card"><img src="../docs/images/25时的热情.webp" alt="25时的热情"><p>25时的热情</p></div>
+                <div class="album-card"><img src="../docs/images/热异常.webp" alt="热异常"><p>热异常</p></div>
+                <div class="album-card"><img src="../docs/images/大人渣.webp" alt="大人渣"><p>大人渣</p></div>
+                <div class="album-card"><img src="../docs/images/延误列车.webp" alt="延误列车"><p>延误列车</p></div>
+                <div class="album-card"><img src="../docs/images/Mind_Brand.webp" alt="Mind_Brand"><p>Mind Brand</p></div>
+                <div class="album-card"><img src="../docs/images/Shadow_Shadow.webp" alt="Shadow_Shadow"><p>Shadow Shadow</p></div>
+                <div class="album-card"><img src="../docs/images/热风.webp" alt="热风"><p>热风</p></div>
+                <div class="album-card"><img src="../docs/images/Cat_Loving.webp" alt="Cat_Loving"><p>Cat_Loving</p></div>
+                <div class="album-card"><img src="../docs/images/我是雨.webp" alt="我是雨"><p>我是雨</p></div>
+                <div class="album-card"><img src="../docs/images/心醉余花.webp" alt="心醉余花"><p>心醉余花</p></div>
+                <div class="album-card"><img src="../docs/images/坏苹果.webp" alt="坏苹果"><p>坏苹果</p></div>
+                <div class="album-card"><img src="../docs/images/浸染成紫.webp" alt="浸染成紫"><p>浸染成紫</p></div>
+                <div class="album-card"><img src="../docs/images/失败作少女.webp" alt="失败作少女"><p>失败作少女</p></div>
+                <div class="album-card"><img src="../docs/images/虚无人士.webp" alt="虚无人士"><p>虚无人士</p></div>
+                <div class="album-card"><img src="../docs/images/怪异之花.webp" alt="怪异之花"><p>怪异之花</p></div>
+                <div class="album-card"><img src="../docs/images/丢失的雨伞.webp" alt="丢失的雨伞"><p>丢失的雨伞</p></div>
+                <div class="album-card"><img src="../docs/images/最终之所.webp" alt="最终之所"><p>最终之所</p></div>
+                <div class="album-card"><img src="../docs/images/光芒就在那里.webp" alt="光芒就在那里"><p>光芒就在那里</p></div>
+                <div class="album-card"><img src="../docs/images/装饰.webp" alt="装饰"><p>装饰</p></div>
+                <div class="album-card"><img src="../docs/images/世界行者.webp" alt="世界行者"><p>世界行者</p></div>
+                <div class="album-card"><img src="../docs/images/五声音阶.webp" alt="五声音阶"><p>五声音阶</p></div>
+                <div class="album-card"><img src="../docs/images/DNA.webp" alt="DNA"><p>DNA</p></div>
+                <div class="album-card"><img src="../docs/images/其绘名为.webp" alt="其绘名为"><p>其绘名为</p></div>
+                <div class="album-card"><img src="../docs/images/决死行进.webp" alt="决死行进"><p>决死行进</p></div>
+                <div class="album-card"><img src="../docs/images/幸福刑.webp" alt="幸福刑"><p>幸福刑</p></div>
+                <div class="album-card"><img src="../docs/images/活着.webp" alt="活着"><p>活着</p></div>
+                <div class="album-card"><img src="../docs/images/那个夏日已然饱和.webp" alt="那个夏日已然饱和"><p>那个夏日已然饱和</p></div>
+                <div class="album-card"><img src="../docs/images/告白.webp" alt="告白"><p>告白</p></div>
+                <div class="album-card"><img src="../docs/images/Who.webp" alt="Who"><p>Who</p></div>
+                <div class="album-card"><img src="../docs/images/枷锁少女.webp" alt="枷锁少女"><p>枷锁少女</p></div>
+                <div class="album-card"><img src="../docs/images/比较症候群.webp" alt="比较症候群"><p>比较症候群</p></div>
+                <div class="album-card"><img src="../docs/images/生命.webp" alt="生命"><p>生命</p></div>
+                <div class="album-card"><img src="../docs/images/Emerald.webp" alt="Emerald"><p>Emerald</p></div>
+                <div class="album-card"><img src="../docs/images/求婚.webp" alt="求婚"><p>求婚</p></div>
+                <div class="album-card"><img src="../docs/images/漫步世界的方式.webp" alt="漫步世界的方式"><p>漫步世界的方式</p></div>
+                <div class="album-card"><img src="../docs/images/回到旅途.webp" alt="回到旅途"><p>回到旅途</p></div>
+                <div class="album-card"><img src="../docs/images/文乃的幸福理论.webp" alt="文乃的幸福理论"><p>文乃的幸福理论</p></div>
+                <div class="album-card"><img src="../docs/images/光.webp" alt="光"><p>光</p></div>
+                <div class="album-card"><img src="../docs/images/绣球花.webp" alt="绣球花"><p>绣球花</p></div>
+                <div class="album-card"><img src="../docs/images/边缘.webp" alt="边缘"><p>边缘</p></div>
+                <div class="album-card"><img src="../docs/images/反才能.webp" alt="反才能"><p>反才能</p></div>
+            </div>
+        </div>
+        <div class="footer">&copy; 2026 25时，Nightcord见</div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">创建账号</span>
+                <button class="close-btn" onclick="closeRegister()">&times;</button>
+            </div>
+            <div class="card">
+                <h2>注册步骤</h2>
+                <ol>
+                    <li>填写用户名</li>
+                    <li>填写注册邮箱</li>
+                    <li>输入密码</li>
+                </ol>
+            </div>
+            <div class="card">
+                <h2>注册须知</h2>
+                <ul>
+                    <li>用户名 3&nbsp;~&nbsp;16 个字符</li>
+                    <li>密码至少 6 位</li>
+                </ul>
+            </div>
+            
+            <form onsubmit="return handleSubmit(event)">
+                <table class="form-table">
+                    <tr>
+                        <td class="field-label"><label for="username">用户名</label></td>
+                        <td><input type="text" id="username" name="username"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label"><label for="email">邮箱</label></td>
+                        <td><input type="email" id="email" name="email"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label"><label for="password">密码</label></td>
+                        <td><input type="password" id="password" name="password"></td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">性别</td>
+                        <td>
+                            <label><input type="radio" name="gender" value="male" checked>男</label>
+                            <label><input type="radio" name="gender" value="female">女</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label">兴趣爱好</td>
+                        <td>
+                            <label><input type="checkbox" name="hobby" value="music">音乐</label>
+                            <label><input type="checkbox" name="hobby" value="draw">绘画</label>
+                            <label><input type="checkbox" name="hobby" value="game">游戏</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label"><label for="city">所在城市</label></td>
+                        <td>
+                            <select id="city" name="city">
+                                <option value="">请选择</option>
+                                <option value="beijing">北京</option>
+                                <option value="nanjing">南京</option>
+                                <option value="tokyo">东京</option>
+                                <option value="shanghai">上海</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="field-label"><label for="sign">个人签名</label></td>
+                        <td><textarea id="sign" name="sign" rows="3"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="btn-cell">
+                            <button type="submit">注册</button>
+                            <button type="reset">重置</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            
+            <div class="card">
+                <h2>账号类型对比</h2>
+                <table class="compare">
+                    <tr>
+                        <th>账号类型</th>
+                        <td>普通会员</td>
+                        <td>高级会员</td>
+                    </tr>
+                    <tr>
+                        <th>权益</th>
+                        <td>仅阅读浏览</td>
+                        <td>编辑</td>
+                    </tr>
+                    <tr>
+                        <th>下载权限</th>
+                        <td>5次/月</td>
+                        <td>无限</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">价格：普通会员免费&nbsp;&middot;&nbsp;高级会员 &yen;30/月</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function toggleMenu(){
+            document.getElementById('dropdown').classList.toggle('show');
+        }
+        function openRegister(){
+            document.getElementById('dropdown').classList.remove('show');
+            document.getElementById('registerModal').classList.add('show');
+            document.body.style.overflow = 'hidden';   // 锁定主页面，禁止背景滚动
+        }
+        function closeRegister(){
+            document.getElementById('registerModal').classList.remove('show');
+            document.body.style.overflow = '';   // 恢复主页面滚动
+        }
+        function handleSubmit(e){
+            e.preventDefault();
+            alert('注册成功');
+            closeRegister();
+            return false;
+        }
+
+        // 音乐播放：给每张卡片生成一个半透明播放器，悬浮在封面上；悬停显示、移开消失，点击播放
+        var currentAudio = null;   // 记住"当前正在播放"的音频，切换歌曲时暂停上一首
+
+        document.querySelectorAll('.album-card').forEach(function(card){
+            var img = card.querySelector('img');
+            var src = img.getAttribute('src');                 // 例如 "../docs/images/查尔斯.webp"
+            src = src.replace('images', 'music');               // 换成 music 文件夹
+            src = src.replace('.webp', '.mp3');                 // 换成 .mp3 音频后缀
+
+            // 新建一个"封面容器"，把图片和播放器都装进去，播放器才能相对图片悬浮定位
+            var cover = document.createElement('div');
+            cover.className = 'album-cover';
+            card.insertBefore(cover, img);   // 把容器插到图片前面
+            cover.appendChild(img);          // 把图片移进容器
+
+            var audio = document.createElement('audio');
+            audio.controls = true;           // 显示 播放/暂停、进度条、音量
+            audio.preload = 'none';          // 点击时才加载，省流量
+            audio.src = src;
+            cover.appendChild(audio);        // 播放器也放进容器，悬浮在图片上方
+
+            card.addEventListener('click', function(e){
+                // 如果点的是播放器本身（比如按"暂停"），交给浏览器处理，不重复触发
+                if (e.target.closest('audio')) return;
+
+                // 切换歌曲：先把上一首暂停，避免两首歌同时响
+                if (currentAudio && currentAudio !== audio){
+                    currentAudio.pause();
+                }
+                currentAudio = audio;
+
+                audio.play();   // 开始播放（显示/隐藏交给 CSS 的 :hover 控制）
+            });
+        });
+    </script>
+</body>
+</html>
